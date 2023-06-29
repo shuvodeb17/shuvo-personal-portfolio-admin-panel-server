@@ -1,4 +1,5 @@
 const express = require('express')
+const multer = require('multer')
 const app = express()
 const cors = require('cors');
 require('dotenv').config();
@@ -7,6 +8,10 @@ const port = process.env.port || 5000
 // middleware
 app.use(cors())
 app.use(express.json())
+
+
+
+
 
 
 
@@ -28,12 +33,23 @@ async function run() {
         await client.connect();
         const projectsCollection = client.db('shuvoPortfolio').collection('projects')
 
-        app.post('/all-projects', async(req, res) => {
+
+        app.post('/all-projects', async (req, res) => {
             const data = req.body;
             const result = await projectsCollection.insertOne(data)
             res.send(result)
         })
 
+        app.get('/projects', async (req,res) => {
+            const result = await projectsCollection.find().toArray()
+            res.send(result)
+        })
+
+        app.get('/project/:id', async(req,res) => {
+            const id = req.body._id
+            const result = await projectsCollection.findOne(id)
+            res.send(result)
+        })
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
@@ -48,7 +64,7 @@ run().catch(console.dir);
 
 
 app.get('/', (req, res) => {
-    res.send('Shuvo deb personal portfolio server!')
+    res.send('Shuvo portfolio')
 })
 
 app.listen(port, () => {
